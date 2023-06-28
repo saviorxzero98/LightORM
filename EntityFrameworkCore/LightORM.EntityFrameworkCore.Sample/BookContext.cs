@@ -7,10 +7,12 @@ namespace LightORM.EntityFrameworkCore.Sample
     {
         public DbSet<Book> Books { get; set; }
 
+        private DatabaseType _datebaseType;
         private string _connectionString;
 
-        public BookContext(string connectionString)
+        public BookContext(DatabaseType databaseType, string connectionString)
         {
+            _datebaseType = databaseType;
             _connectionString = connectionString;
         }
 
@@ -18,7 +20,28 @@ namespace LightORM.EntityFrameworkCore.Sample
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlite(_connectionString);
+                switch (_datebaseType)
+                {
+                    case DatabaseType.InMemory:
+                        optionsBuilder.UseInMemoryDatabase(_connectionString);
+                        break;
+
+                    case DatabaseType.SqlServer:
+                        optionsBuilder.UseSqlServer(_connectionString); 
+                        break;
+
+                    case DatabaseType.Postgres:
+                        optionsBuilder.UseNpgsql(_connectionString);
+                        break;
+
+                    case DatabaseType.Sqlite:
+                        optionsBuilder.UseSqlite(_connectionString);
+                        break;
+
+                    case DatabaseType.MySql:
+                        optionsBuilder.UseMySql(_connectionString, ServerVersion.AutoDetect(_connectionString));
+                        break;
+                }
             }
         }
     }

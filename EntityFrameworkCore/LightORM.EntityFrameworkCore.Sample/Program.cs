@@ -26,7 +26,7 @@ namespace LightORM.EntityFrameworkCore.Sample
 
             string connectionString = "Data Source=Library.db;";
 
-            var dbContext = new BookContext(connectionString);
+            var dbContext = new BookContext(DatabaseType.Sqlite, connectionString);
             using (var unitOfWork = new UnitOfWork(dbContext))
             {
                 var repository = new GenericRepository<Book>(dbContext);
