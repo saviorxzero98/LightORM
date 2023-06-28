@@ -61,17 +61,17 @@ namespace LightORM.Dapper
 
                 case "sqlite":
                 case "sqlite3":
-                    return DbAdapterType.SqlServer;
+                    return DbAdapterType.Sqlite;
 
                 case "pgsql":
                 case "postgre":
                 case "postgres":
                 case "postgresql":
-                    return DbAdapterType.SqlServer;
+                    return DbAdapterType.Postgres;
 
                 case "mysql":
                 case "mariadb":
-                    return DbAdapterType.SqlServer;
+                    return DbAdapterType.MySql;
 
                 default:
                     return DbAdapterType.None;
