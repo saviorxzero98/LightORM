@@ -307,20 +307,42 @@ namespace LightORM.Dapper.Repositories
         /// <param name="entity"></param>
         /// <param name="whereConditions"></param>
         /// <returns></returns>
-        public int Update(TEntity entity, List<WhereCondition> whereConditions = null)
+        public int Update(TEntity entity, List<WhereCondition> whereConditions)
         {
             if (Connection != null && entity != null)
             {
-                // 取得 SQL Query
-                Query sqlQuery = GetUpdateSqlQuery(whereConditions);
+                if (whereConditions.Any())
+                {
+                    // 取得 SQL Query
+                    Query sqlQuery = GetUpdateSqlQuery(whereConditions);
 
-                // 執行 SQL
-                var factory = CreateSqlQueryFactory();
-                int result = factory.FromQuery(sqlQuery)
-                                    .Update(entity);
-                return result;
+                    // 執行 SQL
+                    var factory = CreateSqlQueryFactory();
+                    int result = factory.FromQuery(sqlQuery)
+                                        .Update(entity);
+                    return result;
+                }
+                else
+                {
+                    int result = Connection.Update(entity);
+                    return result;
+                }
             }
             return 0;
+        }
+        /// <summary>
+        /// Update
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="whereConditions"></param>
+        /// <returns></returns>
+        public int Update(TEntity entity, params WhereCondition[] whereConditions)
+        {
+            if (whereConditions != null)
+            {
+                return Update(entity, whereConditions.ToList());
+            }
+            return Update(entity, new List<WhereCondition>());
         }
 
         /// <summary>
@@ -329,21 +351,44 @@ namespace LightORM.Dapper.Repositories
         /// <param name="entity"></param>
         /// <param name="whereConditions"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(TEntity entity, List<WhereCondition> whereConditions = null)
+        public async Task<int> UpdateAsync(TEntity entity, List<WhereCondition> whereConditions)
         {
             if (Connection != null && entity != null)
             {
-                // 取得 SQL Query
-                Query sqlQuery = GetUpdateSqlQuery(whereConditions);
+                if (whereConditions.Any())
+                {
+                    // 取得 SQL Query
+                    Query sqlQuery = GetUpdateSqlQuery(whereConditions);
 
-                // 執行 SQL
-                var factory = CreateSqlQueryFactory();
-                int result = await factory.FromQuery(sqlQuery)
-                                          .UpdateAsync(entity);
-                return result;
+                    // 執行 SQL
+                    var factory = CreateSqlQueryFactory();
+                    int result = await factory.FromQuery(sqlQuery)
+                                              .UpdateAsync(entity);
+                    return result;
+                }
+                else
+                {
+                    int result = Connection.Update(entity);
+                    return result;
+                }
             }
             return 0;
         }
+        /// <summary>
+        /// Update
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="whereConditions"></param>
+        /// <returns></returns>
+        public Task<int> UpdateAsync(TEntity entity, params WhereCondition[] whereConditions)
+        {
+            if (whereConditions != null)
+            {
+                return UpdateAsync(entity, whereConditions.ToList());
+            }
+            return UpdateAsync(entity);
+        }
+
 
         /// <summary>
         /// Create Update SQL Query
@@ -373,6 +418,19 @@ namespace LightORM.Dapper.Repositories
         /// </summary>
         /// <param name="whereConditions"></param>
         /// <returns></returns>
+        public int Delete(params WhereCondition[] whereConditions)
+        {
+            if (whereConditions != null)
+            {
+                return Delete(whereConditions.ToList());
+            }
+            return 0;
+        }
+        /// <summary>
+        /// Delete
+        /// </summary>
+        /// <param name="whereConditions"></param>
+        /// <returns></returns>
         public int Delete(List<WhereCondition> whereConditions)
         {
             if (Connection != null)
@@ -388,7 +446,33 @@ namespace LightORM.Dapper.Repositories
             }
             return 0;
         }
+        /// <summary>
+        /// Delete
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public int Delete(TEntity entity)
+        {
+            if (entity != null && Connection != null)
+            {
+                return Connection.Delete(entity);
+            }
+            return 0;
+        }
 
+        /// <summary>
+        /// Delete
+        /// </summary>
+        /// <param name="whereConditions"></param>
+        /// <returns></returns>
+        public Task<int> DeleteAsync(params WhereCondition[] whereConditions)
+        {
+            if (whereConditions != null)
+            {
+                return DeleteAsync(whereConditions.ToList());
+            }
+            return Task.FromResult(0);
+        }
         /// <summary>
         /// Delete
         /// </summary>
@@ -406,6 +490,19 @@ namespace LightORM.Dapper.Repositories
                 int result = await factory.FromQuery(sqlQuery)
                                           .DeleteAsync();
                 return result;
+            }
+            return 0;
+        }
+        /// <summary>
+        /// Delete
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public async Task<int> DeleteAsync(TEntity entity)
+        {
+            if (entity != null && Connection != null)
+            {
+                return await Connection.DeleteAsync(entity);
             }
             return 0;
         }

@@ -1111,6 +1111,24 @@ namespace LightORM.Dapper.Extensions
                 return this;
             }
             /// <summary>
+            /// Add Where Conditions
+            /// </summary>
+            /// <param name="whereConditions"></param>
+            /// <returns></returns>
+            public QueryOptions AddWhereConditions(params WhereCondition[] whereConditions)
+            {
+                if (whereConditions != null && whereConditions.Any())
+                {
+                    if (WhereConditions == null)
+                    {
+                        WhereConditions = new List<WhereCondition>();
+                    }
+                    WhereConditions.AddRange(whereConditions);
+                }
+                return this;
+            }
+
+            /// <summary>
             /// Set Where Conditions
             /// </summary>
             /// <param name="whereConditions"></param>
@@ -1120,6 +1138,19 @@ namespace LightORM.Dapper.Extensions
                 if (whereConditions != null)
                 {
                     WhereConditions = whereConditions;
+                }
+                return this;
+            }
+            /// <summary>
+            /// Set Where Conditions
+            /// </summary>
+            /// <param name="whereConditions"></param>
+            /// <returns></returns>
+            public QueryOptions SetWhereConditions(params WhereCondition[] whereConditions)
+            {
+                if (whereConditions != null)
+                {
+                    WhereConditions = whereConditions.ToList();
                 }
                 return this;
             }
