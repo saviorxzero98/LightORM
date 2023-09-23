@@ -1,12 +1,13 @@
-﻿using System.Linq.Expressions;
+﻿using LightORM.EntityFrameworkCore.DataQuery;
+using System.Linq.Expressions;
 
 namespace LightORM.EntityFrameworkCore.Repositories
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        TEntity Get(Expression<Func<TEntity, bool>> predicate);
+        TEntity? Get(Expression<Func<TEntity, bool>> predicate);
 
-        List<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate);
+        List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate, IDataQueryOptions? options);
 
         int GetCount(Expression<Func<TEntity, bool>> predicate);
 

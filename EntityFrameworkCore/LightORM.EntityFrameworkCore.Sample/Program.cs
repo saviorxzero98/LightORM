@@ -1,4 +1,5 @@
-﻿using LightORM.EntityFrameworkCore.Repositories;
+﻿using LightORM.EntityFrameworkCore.DataQuery;
+using LightORM.EntityFrameworkCore.Repositories;
 using LightORM.EntityFrameworkCore.Sample.Entities;
 using LightORM.EntityFrameworkCore.UnitOfWorks;
 
@@ -23,6 +24,22 @@ namespace LightORM.EntityFrameworkCore.Sample
                 IsAvailable = true,
                 CreateDate = DateTime.Now
             };
+            var book2 = new Book()
+            {
+                Id = 2,
+                Name = "Cinderella",
+                Author = "Charles Perrault",
+                IsAvailable = true,
+                CreateDate = DateTime.Now
+            };
+            var book3 = new Book()
+            {
+                Id = 3,
+                Name = "Cinderellb",
+                Author = "Charles Perrault",
+                IsAvailable = true,
+                CreateDate = DateTime.Now
+            };
 
             string connectionString = "Data Source=Library.db;";
 
@@ -33,22 +50,63 @@ namespace LightORM.EntityFrameworkCore.Sample
 
                 // Insert
                 var insertResult = repository.Insert(book);
+                var insterResult2 = repository.Insert(book2);
+                var insterResult3 = repository.Insert(book3);
                 await unitOfWork.SaveChangeAsync();
 
-                // Get
-                var insertedBook = repository.Get(e => e.Id == book.Id);
 
-                // Update
-                insertedBook.IsAvailable = false;
-                var updateResult = repository.UpdateAsync(insertedBook);
-                await unitOfWork.SaveChangeAsync();
+                var queryOptions = new DataQueryOptions()
+                {
+                    Filters = new List<DataFilter>()
+                    {
+                        new DataFilter()
+                        {
+                            Field = nameof(Book.Id),
+                            Operator = DataFilterOperator.GreaterThanOrEqual,
+                            Value = "2"
+                        }
+                    }
+                };
+                var books = repository.GetAll((book) => true, options: queryOptions);
+
+
+
+                //// Get
+                //var insertedBook = repository.Get(e => e.Id == book.Id);
+
+                //if (insertedBook != null)
+                //{
+                //    // Update
+                //    insertedBook.IsAvailable = false;
+                //    var updateResult = repository.UpdateAsync(insertedBook);
+                //    await unitOfWork.SaveChangeAsync();
+                //}
+
 
                 // Get again
                 var updatedBook = repository.Get(e => e.Id == book.Id);
+                var updatedBook2 = repository.Get(e => e.Id == book2.Id);
+                var updatedBook3 = repository.Get(e => e.Id == book3.Id);
 
-                // Delete
-                var deleteResult = repository.DeleteAsync(updatedBook);
-                await unitOfWork.SaveChangeAsync();
+                if (updatedBook != null)
+                {
+                    // Delete
+                    var deleteResult = repository.DeleteAsync(updatedBook);
+                    await unitOfWork.SaveChangeAsync();
+                }
+                if (updatedBook2 != null)
+                {
+                    // Delete
+                    var deleteResult = repository.DeleteAsync(updatedBook2);
+                    await unitOfWork.SaveChangeAsync();
+                }
+                if (updatedBook3 != null)
+                {
+                    // Delete
+                    var deleteResult = repository.DeleteAsync(updatedBook3);
+                    await unitOfWork.SaveChangeAsync();
+
+                }
             }
         }
     }

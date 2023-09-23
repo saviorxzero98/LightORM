@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LightORM.EntityFrameworkCore.DataQuery;
+using LightORM.EntityFrameworkCore.Extensions;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace LightORM.EntityFrameworkCore.Repositories
@@ -18,7 +20,7 @@ namespace LightORM.EntityFrameworkCore.Repositories
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public TEntity Get(Expression<Func<TEntity, bool>> predicate)
+        public TEntity? Get(Expression<Func<TEntity, bool>> predicate)
         {
             return Context.Set<TEntity>().Where(predicate).FirstOrDefault();
         }
@@ -28,9 +30,23 @@ namespace LightORM.EntityFrameworkCore.Repositories
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public List<TEntity> GetAll(Expression<Func<TEntity, bool>> predicate)
+        public List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate, IDataQueryOptions? options)
         {
-            return Context.Set<TEntity>().Where(predicate).ToList();
+            IQueryable<TEntity> queryable = Context.Set<TEntity>();
+
+            if (predicate != null) 
+            {
+                queryable = queryable.Where(predicate);
+            }
+
+            if (options != null)
+            {
+                queryable = queryable.Page(options)
+                                     .Sort(options)
+                                     .Filter(options);
+            }
+
+            return queryable.ToList();
         }
 
         /// <summary>
