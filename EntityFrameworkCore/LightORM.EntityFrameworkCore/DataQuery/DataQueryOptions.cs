@@ -2,21 +2,17 @@
 {
     public class DataQueryOptions : IDataQueryOptions
     {
-        #region 分頁
+        #region 分頁 (Page)
 
         /// <summary>
-        /// 每一頁的筆數
+        /// 忽略幾筆資料
         /// </summary>
-        /// <remarks>
-        /// 0：不分頁；
-        /// 1 ~ N：限制 1 ~ N 筆
-        /// </remarks>
-        public int PageSize { get; set; } = 0;
+        public int Offset { get; set; } = 0;
 
         /// <summary>
-        /// 第 N 頁
+        /// 取得幾筆資料
         /// </summary>
-        public int PageNumber { get; set; } = 0;
+        public int Limit { get; set; } = 0;
 
         #endregion
 

@@ -12,10 +12,52 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
+        /// <param name="offset"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
+        public static IQueryable<T> Page<T>(this IQueryable<T> queryable, int offset, int limit)
+        {
+            if (limit > 1)
+            {
+                // 分頁
+                return queryable.Skip(offset).Take(limit);
+            }
+            else
+            {
+                // 不分頁
+                return queryable;
+            }
+        }
+
+        /// <summary>
+        /// 分頁
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queryable"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        public static IQueryable<T> Page<T>(this IQueryable<T> queryable, IDataPageOptions page)
+        {
+            if (page != null)
+            {
+                return queryable.Page(page.Offset, page.Limit);
+            }
+            else
+            {
+                return queryable;
+            }            
+        }
+
+
+        /// <summary>
+        /// 分頁
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queryable"></param>
         /// <param name="pageNumber"></param>
         /// <param name="pageSize"></param>
         /// <returns></returns>
-        public static IQueryable<T> Page<T>(this IQueryable<T> queryable, int pageNumber, int pageSize)
+        public static IQueryable<T> SlidingPage<T>(this IQueryable<T> queryable, int pageNumber, int pageSize)
         {
             if (pageSize > 1)
             {
@@ -37,11 +79,18 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
-        /// <param name="dataPage"></param>
+        /// <param name="slidingPage"></param>
         /// <returns></returns>
-        public static IQueryable<T> Page<T>(this IQueryable<T> queryable, IDataPageOptions dataPage)
+        public static IQueryable<T> SlidingPage<T>(this IQueryable<T> queryable, IDataSlidingPageOptions slidingPage)
         {
-            return queryable.Page(dataPage.PageNumber, dataPage.PageSize);
+            if (slidingPage != null)
+            {
+                return queryable.SlidingPage(slidingPage.PageNumber, slidingPage.PageSize);
+            }
+            else
+            {
+                return queryable;
+            }
         }
 
         #endregion
@@ -61,11 +110,15 @@ namespace LightORM.EntityFrameworkCore.Extensions
         {
             if (!string.IsNullOrEmpty(field))
             {
-                string orderExpression = $"{field} {direction}";
-
-                return queryable.OrderBy(orderExpression);
+                return queryable.Sort(new List<DataSortField>()
+                {
+                    new DataSortField(field, direction)
+                });
             }
-            return queryable;
+            else
+            {
+                return queryable;
+            }
         }
 
         /// <summary>
@@ -104,7 +157,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
             else
             {
                 return queryable;
-            }
+            }            
         }
 
         #endregion

@@ -3,17 +3,13 @@
     public interface IDataPageOptions
     {
         /// <summary>
-        /// 每一頁的筆數
+        /// 忽略幾筆資料
         /// </summary>
-        /// <remarks>
-        /// 0：不分頁；
-        /// 1 ~ N：限制 1 ~ N 筆
-        /// </remarks>
-        int PageSize { get; }
+        int Offset { get; set; }
 
         /// <summary>
-        /// 第 N 頁
+        /// 取得幾筆資料
         /// </summary>
-        int PageNumber { get; }
+        int Limit { get; set; }
     }
 }

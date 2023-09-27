@@ -1,5 +1,4 @@
-﻿using LightORM.EntityFrameworkCore.DataQuery;
-using LightORM.EntityFrameworkCore.Repositories;
+﻿using LightORM.EntityFrameworkCore.Repositories;
 using LightORM.EntityFrameworkCore.Sample.Entities;
 using LightORM.EntityFrameworkCore.UnitOfWorks;
 
@@ -54,33 +53,16 @@ namespace LightORM.EntityFrameworkCore.Sample
                 var insterResult3 = repository.Insert(book3);
                 await unitOfWork.SaveChangeAsync();
 
+                // Get
+                var insertedBook = repository.Get(e => e.Id == book.Id);
 
-                var queryOptions = new DataQueryOptions()
+                if (insertedBook != null)
                 {
-                    Filters = new List<DataFilter>()
-                    {
-                        new DataFilter()
-                        {
-                            Field = nameof(Book.Id),
-                            Operator = DataFilterOperator.GreaterThanOrEqual,
-                            Value = "2"
-                        }
-                    }
-                };
-                var books = repository.GetAll((book) => true, options: queryOptions);
-
-
-
-                //// Get
-                //var insertedBook = repository.Get(e => e.Id == book.Id);
-
-                //if (insertedBook != null)
-                //{
-                //    // Update
-                //    insertedBook.IsAvailable = false;
-                //    var updateResult = repository.UpdateAsync(insertedBook);
-                //    await unitOfWork.SaveChangeAsync();
-                //}
+                    // Update
+                    insertedBook.IsAvailable = false;
+                    var updateResult = repository.UpdateAsync(insertedBook);
+                    await unitOfWork.SaveChangeAsync();
+                }
 
 
                 // Get again

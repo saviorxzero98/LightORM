@@ -1,9 +1,6 @@
 ﻿using LightORM.EntityFrameworkCore.DataQuery;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using System.Diagnostics.Metrics;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Reflection.Metadata;
 
 namespace LightORM.EntityFrameworkCore.Extensions
 {
