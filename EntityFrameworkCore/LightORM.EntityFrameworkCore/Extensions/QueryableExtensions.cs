@@ -17,7 +17,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// <returns></returns>
         public static IQueryable<T> Page<T>(this IQueryable<T> queryable, int offset, int limit)
         {
-            if (limit > 1)
+            if (limit > 0)
             {
                 // 分頁
                 return queryable.Skip(offset).Take(limit);
