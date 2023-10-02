@@ -34,6 +34,11 @@ namespace LightORM.EntityFrameworkCore.Extensions
                 .ToList()
                 .Where(filter =>
                 {
+                    if (string.IsNullOrEmpty(filter.Field))
+                    {
+                        return false;
+                    }
+
                     var property = typeof(T).GetProperty(filter.Field, 
                                                          BindingFlags.IgnoreCase |
                                                          BindingFlags.Public |
@@ -238,7 +243,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
                     return Expression.Call(member, _startsWithMethod, constant);
 
                 default:
-                    return default(Expression);
+                    return Expression.Constant(false);
             }
         }
 

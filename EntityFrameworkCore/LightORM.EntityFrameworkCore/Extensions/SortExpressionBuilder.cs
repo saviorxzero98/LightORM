@@ -13,7 +13,8 @@ namespace LightORM.EntityFrameworkCore.Extensions
                 return queryable;
             }
 
-            var isOrdered = queryable.Expression.Type.Equals(typeof(IOrderedQueryable<T>));
+            // 是否為 IOrderedQueryable Type
+            var isOrderedType = queryable.Expression.Type.Equals(typeof(IOrderedQueryable<T>));
             var sortList = sorts.ToList();
             var itemType = typeof(T);
             var parameter = Expression.Parameter(itemType, "item");
@@ -37,15 +38,8 @@ namespace LightORM.EntityFrameworkCore.Extensions
                 switch (sort.Direction)
                 {
                     case DataSortDirection.Asc:
-                        if (isOrdered)
-                        {
-                            methodCall = Expression.Call(typeof(Queryable),
-                                                         nameof(Queryable.OrderBy),
-                                                         new Type[] { itemType, property.PropertyType },
-                                                         queryable.Expression,
-                                                         Expression.Quote(sortExpression));
-                        }
-                        else
+                        // 第1個先 OrderBy，後面皆是 ThenBy
+                        if (isOrderedType)
                         {
                             methodCall = Expression.Call(typeof(Queryable),
                                                          nameof(Queryable.ThenBy),
@@ -53,23 +47,32 @@ namespace LightORM.EntityFrameworkCore.Extensions
                                                          queryable.Expression,
                                                          Expression.Quote(sortExpression));
                         }
+                        else
+                        {
+                            methodCall = Expression.Call(typeof(Queryable),
+                                                         nameof(Queryable.OrderBy),
+                                                         new Type[] { itemType, property.PropertyType },
+                                                         queryable.Expression,
+                                                         Expression.Quote(sortExpression));
+                        }
                         break;
 
                     case DataSortDirection.Desc:
-                        if (isOrdered)
+                        // 第1個先 OrderBy，後面皆是 ThenBy
+                        if (isOrderedType)
                         {
                             methodCall = Expression.Call(typeof(Queryable),
-                                                         nameof(Queryable.OrderByDescending),
-                                                         new Type[] { itemType,
-                                                         property.PropertyType },
+                                                         nameof(Queryable.ThenByDescending),
+                                                         new Type[] { itemType, property.PropertyType },
                                                          queryable.Expression,
                                                          Expression.Quote(sortExpression));
                         }
                         else
                         {
-                            methodCall = Expression.Call(typeof(Queryable), 
-                                                         nameof(Queryable.ThenByDescending), 
-                                                         new Type[] { itemType, property.PropertyType },
+                            methodCall = Expression.Call(typeof(Queryable),
+                                                         nameof(Queryable.OrderByDescending),
+                                                         new Type[] { itemType,
+                                                         property.PropertyType },
                                                          queryable.Expression,
                                                          Expression.Quote(sortExpression));
                         }
@@ -80,7 +83,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
                 }
 
                 queryable = queryable.Provider.CreateQuery<T>(methodCall) as IOrderedQueryable<T>;
-                isOrdered = true;
+                isOrderedType = true;
             }
             return queryable;
         }

@@ -41,7 +41,7 @@ namespace LightORM.EntityFrameworkCore.Repositories
 
             if (options != null)
             {
-                queryable = queryable.SlidingPage(options)
+                queryable = queryable.Page(options)
                                      .Sort(options)
                                      .Filter(options);
             }
