@@ -15,17 +15,22 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// <param name="offset"></param>
         /// <param name="limit"></param>
         /// <returns></returns>
-        public static IQueryable<T> Page<T>(this IQueryable<T> queryable, int offset, int limit)
+        public static IQueryable<T> Page<T>(this IQueryable<T> queryable, int offset = 0, int limit = 0)
         {
             if (limit > 0)
             {
-                // 分頁
                 return queryable.Skip(offset).Take(limit);
             }
             else
             {
-                // 不分頁
-                return queryable;
+                if (offset > 0)
+                {
+                    return queryable.Skip(offset);
+                }
+                else
+                {
+                    return queryable;
+                }
             }
         }
 
