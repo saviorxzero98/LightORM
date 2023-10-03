@@ -42,8 +42,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
                     var property = typeof(T).GetProperty(filter.Field, 
                                                          BindingFlags.IgnoreCase |
                                                          BindingFlags.Public |
-                                                         BindingFlags.Instance |
-                                                         BindingFlags.Static);
+                                                         BindingFlags.Instance);
                     return (property is object && 
                             !string.IsNullOrEmpty(filter.Value));
                 })
