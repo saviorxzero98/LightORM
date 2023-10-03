@@ -1,5 +1,6 @@
 ﻿using LightORM.EntityFrameworkCore.DataQuery;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace LightORM.EntityFrameworkCore.Extensions
 {
@@ -20,7 +21,9 @@ namespace LightORM.EntityFrameworkCore.Extensions
             var parameter = Expression.Parameter(itemType, "item");
             foreach (var sort in sortList)
             {
-                var property = typeof(T).GetProperty(sort.Field);
+                var property = typeof(T).GetProperty(sort.Field, BindingFlags.IgnoreCase |
+                                                                 BindingFlags.Public |
+                                                                 BindingFlags.Instance);
 
                 if (property == null)
                 {
