@@ -1,6 +1,6 @@
 ﻿namespace LightORM.EntityFrameworkCore.DataQuery.Filters
 {
-    public enum FilterOperator
+    public enum FilterOperators
     {
         /// <summary>
         /// 包含

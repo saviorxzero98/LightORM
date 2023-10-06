@@ -18,6 +18,6 @@
         /// <summary>
         /// 篩選的運算子
         /// </summary>
-        FilterOperator Operator { get; set; }
+        FilterOperators Operator { get; set; }
     }
 }

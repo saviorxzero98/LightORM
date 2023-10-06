@@ -7,7 +7,10 @@ namespace LightORM.EntityFrameworkCore.Repositories
     {
         TEntity? Get(Expression<Func<TEntity, bool>> predicate);
 
-        List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate, IDataQueryOptions? options);
+        List<TEntity> GetList(Expression<Func<TEntity, bool>>? predicate,
+                              DataQueryOptions? options);
+
+        List<TEntity> GetList(DataQueryOptions options);
 
         int GetCount(Expression<Func<TEntity, bool>> predicate);
 
@@ -20,5 +23,8 @@ namespace LightORM.EntityFrameworkCore.Repositories
         int Delete(TEntity entity);
 
         Task<int> DeleteAsync(TEntity entity);
+
+
+        Task<IQueryable<TEntity>> GetQueryableAsync();
     }
 }

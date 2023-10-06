@@ -15,12 +15,12 @@
         /// <summary>
         /// 篩選方式
         /// </summary>
-        public FilterOperator Operator { get; set; } = FilterOperator.StartsWith;
+        public FilterOperators Operator { get; set; } = FilterOperators.StartsWith;
 
         /// <summary>
         /// 篩選的邏輯 (AND, OR)
         /// </summary>
-        public FilterLogic Logic { get; set; } = FilterLogic.And;
+        public FilterLogics Logic { get; set; } = FilterLogics.And;
 
         /// <summary>
         /// 多個篩選條件
@@ -30,17 +30,17 @@
         
         public CompositeFilterOptions() 
         {
-            Logic = FilterLogic.And;
+            Logic = FilterLogics.And;
             Filters = new List<ICompositeFilterOptions>();
         }
-        public CompositeFilterOptions(List<ICompositeFilterOptions> filters, FilterLogic logic)
+        public CompositeFilterOptions(List<ICompositeFilterOptions> filters, FilterLogics logic)
         {
             Logic = logic;
             Filters = filters;
         }
         public CompositeFilterOptions(IFilterOptions filter)
         {
-            Logic = FilterLogic.And;
+            Logic = FilterLogics.And;
             Filters = new List<ICompositeFilterOptions>();
 
             if (filter != null)

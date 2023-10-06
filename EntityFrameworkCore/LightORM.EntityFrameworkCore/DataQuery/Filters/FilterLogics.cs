@@ -1,6 +1,6 @@
 ﻿namespace LightORM.EntityFrameworkCore.DataQuery.Filters
 {
-    public enum FilterLogic
+    public enum FilterLogics
     {
         /// <summary>
         /// AND

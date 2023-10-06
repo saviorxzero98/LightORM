@@ -5,11 +5,11 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
 {
     internal class FilterExpressionBuilder
     {
-        private static readonly MethodInfo _containsMethod = typeof(string).GetMethod(nameof(FilterOperator.Contains),
+        private static readonly MethodInfo _containsMethod = typeof(string).GetMethod(nameof(FilterOperators.Contains),
                                                                                       new[] { typeof(string) });
-        private static readonly MethodInfo _startsWithMethod = typeof(string).GetMethod(nameof(FilterOperator.StartsWith),
+        private static readonly MethodInfo _startsWithMethod = typeof(string).GetMethod(nameof(FilterOperators.StartsWith),
                                                                                         new[] { typeof(string) });
-        private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod(nameof(FilterOperator.EndsWith),
+        private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod(nameof(FilterOperators.EndsWith),
                                                                                       new[] { typeof(string) });
         private static Expression<Func<T, bool>> DefaultExpression<T>() => _ => true;
 
@@ -21,7 +21,7 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <param name="filterLogic"></param>
         /// <param name="filters"></param>
         /// <returns></returns>
-        internal static Expression<Func<T, bool>>? GetFilterExpression<T>(FilterLogic filterLogic, IEnumerable<ICompositeFilterOptions> filters)
+        internal static Expression<Func<T, bool>>? GetFilterExpression<T>(FilterLogics filterLogic, IEnumerable<IFilterOptions> filters)
         {
             if (!(filters is object) || !filters.Any())
             {
@@ -63,7 +63,7 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         private static Expression<Func<T, bool>> CombineExpressions<T>(IEnumerable<Expression<Func<T, bool>>> expressions,
-                                                                       FilterLogic filterLogic)
+                                                                       FilterLogics filterLogic)
         {
             if (!(expressions is object) || !expressions.Any())
             {
@@ -82,11 +82,11 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
 
                 switch (filterLogic)
                 {
-                    case FilterLogic.And:
+                    case FilterLogics.And:
                         result = VisitExpression(Expression.AndAlso, result, expression);
                         break;
 
-                    case FilterLogic.Or:
+                    case FilterLogics.Or:
                         result = VisitExpression(Expression.OrElse, result, expression);
                         break;
 
@@ -130,7 +130,7 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <param name="filterValue"></param>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        private static Expression GetFilterExpression<T>(FilterOperator filterOperator,
+        private static Expression GetFilterExpression<T>(FilterOperators filterOperator,
                                                          ParameterExpression param,
                                                          string filterValue, 
                                                          string fieldName)
@@ -214,40 +214,40 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <param name="member"></param>
         /// <param name="constant"></param>
         /// <returns></returns>
-        private static Expression GetExpression(FilterOperator filterOperator,
+        private static Expression GetExpression(FilterOperators filterOperator,
                                                 MemberExpression member,
                                                 ConstantExpression constant)
         {
             switch (filterOperator)
             {
-                case FilterOperator.GreaterThanOrEqual:
+                case FilterOperators.GreaterThanOrEqual:
                     return Expression.GreaterThanOrEqual(member, constant);
 
-                case FilterOperator.LessThanOrEqual:
+                case FilterOperators.LessThanOrEqual:
                     return Expression.LessThanOrEqual(member, constant);
 
-                case FilterOperator.GreaterThan:
+                case FilterOperators.GreaterThan:
                     return Expression.GreaterThan(member, constant);
 
-                case FilterOperator.LessThan:
+                case FilterOperators.LessThan:
                     return Expression.LessThan(member, constant);
 
-                case FilterOperator.Equals:
+                case FilterOperators.Equals:
                     return Expression.Equal(member, constant);
 
-                case FilterOperator.NotEquals:
+                case FilterOperators.NotEquals:
                     return Expression.NotEqual(member, constant);
 
-                case FilterOperator.Contains:
+                case FilterOperators.Contains:
                     return Expression.Call(member, _containsMethod, constant);
 
-                case FilterOperator.DoesNotContain:
+                case FilterOperators.DoesNotContain:
                     return Expression.Not(Expression.Call(member, _containsMethod, constant));
 
-                case FilterOperator.EndsWith:
+                case FilterOperators.EndsWith:
                     return Expression.Call(member, _endsWithMethod, constant);
 
-                case FilterOperator.StartsWith:
+                case FilterOperators.StartsWith:
                     return Expression.Call(member, _startsWithMethod, constant);
 
                 default:

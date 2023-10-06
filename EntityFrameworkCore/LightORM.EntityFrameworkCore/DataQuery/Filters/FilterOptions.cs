@@ -15,13 +15,14 @@
         /// <summary>
         /// 篩選方式
         /// </summary>
-        public FilterOperator Operator { get; set; } = FilterOperator.StartsWith;
+        public FilterOperators Operator { get; set; } = FilterOperators.StartsWith;
 
 
         public FilterOptions() : this(string.Empty, string.Empty)
         {
         }
-        public FilterOptions(string field, string value, FilterOperator op = FilterOperator.StartsWith)
+        public FilterOptions(string field, string value, 
+                             FilterOperators op = FilterOperators.StartsWith)
         {
             Field = field;
             Value = value;
@@ -39,7 +40,7 @@
             {
                 Field = string.Empty;
                 Value = string.Empty;
-                Operator = FilterOperator.StartsWith;
+                Operator = FilterOperators.StartsWith;
             }
         }
     }

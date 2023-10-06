@@ -8,7 +8,7 @@
         /// <summary>
         /// 子篩選的邏輯 (AND 或 OR)
         /// </summary>
-        FilterLogic Logic { get; set; }
+        FilterLogics Logic { get; set; }
 
         /// <summary>
         /// 子篩選

@@ -1,14 +1,32 @@
-﻿using LightORM.EntityFrameworkCore.DataQuery;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace LightORM.EntityFrameworkCore.Extensions
+namespace LightORM.EntityFrameworkCore.DataQuery.Sorts
 {
     public static class SortExpressionBuilder
     {
-        public static IQueryable<T> ApplySort<T>(IQueryable<T> queryable, IEnumerable<DataSortField> sorts)
+        /// <summary>
+        /// 套用排序
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queryable"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static IQueryable<T> ApplySort<T>(IQueryable<T> queryable, IMultiSortOptions options)
         {
-            if (sorts == null || 
+            return ApplySort(queryable, options.Sorts);
+        }
+
+        /// <summary>
+        /// 套用排序
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="queryable"></param>
+        /// <param name="sorts"></param>
+        /// <returns></returns>
+        public static IQueryable<T> ApplySort<T>(IQueryable<T> queryable, IEnumerable<ISortOptions> sorts)
+        {
+            if (sorts == null ||
                 !sorts.Any())
             {
                 return queryable;
@@ -40,7 +58,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
 
                 switch (sort.Direction)
                 {
-                    case DataSortDirection.Asc:
+                    case SortDirections.Asc:
                         // 第1個先 OrderBy，後面皆是 ThenBy
                         if (isOrderedType)
                         {
@@ -60,7 +78,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
                         }
                         break;
 
-                    case DataSortDirection.Desc:
+                    case SortDirections.Desc:
                         // 第1個先 OrderBy，後面皆是 ThenBy
                         if (isOrderedType)
                         {
@@ -82,7 +100,7 @@ namespace LightORM.EntityFrameworkCore.Extensions
                         break;
 
                     default:
-                        throw new NotImplementedException($"Unsupported sort direction: {sort.Direction}");
+                        continue;
                 }
 
                 queryable = queryable.Provider.CreateQuery<T>(methodCall) as IOrderedQueryable<T>;

@@ -1,6 +1,6 @@
-﻿namespace LightORM.EntityFrameworkCore.DataQuery
+﻿namespace LightORM.EntityFrameworkCore.DataQuery.Pages
 {
-    public interface IDataPageOptions
+    public interface IPageOptions
     {
         /// <summary>
         /// 忽略幾筆資料

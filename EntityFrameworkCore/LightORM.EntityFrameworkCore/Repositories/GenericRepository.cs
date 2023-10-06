@@ -26,11 +26,12 @@ namespace LightORM.EntityFrameworkCore.Repositories
         }
 
         /// <summary>
-        /// Get All
+        /// Get List
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public List<TEntity> GetAll(Expression<Func<TEntity, bool>>? predicate, IDataQueryOptions? options)
+        public List<TEntity> GetList(Expression<Func<TEntity, bool>>? predicate, 
+                                     DataQueryOptions? options)
         {
             IQueryable<TEntity> queryable = Context.Set<TEntity>();
 
@@ -39,15 +40,28 @@ namespace LightORM.EntityFrameworkCore.Repositories
                 queryable = queryable.Where(predicate);
             }
 
-            if (options != null)
-            {
-                queryable = queryable.Page(options)
-                                     .Sort(options)
-                                     .Filter(options);
-            }
+            queryable = queryable.Sort(options)
+                                 .Page(options);
 
             return queryable.ToList();
         }
+
+        /// <summary>
+        /// Get List
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public List<TEntity> GetList(DataQueryOptions options)
+        {
+            IQueryable<TEntity> queryable = Context.Set<TEntity>();
+
+            queryable = queryable.Filter(options.Filters)
+                                 .Sort(options)
+                                 .Page(options);
+
+            return queryable.ToList();
+        }
+
 
         /// <summary>
         /// Get Count
@@ -118,6 +132,16 @@ namespace LightORM.EntityFrameworkCore.Repositories
         public Task<int> DeleteAsync(TEntity entity)
         {
             return Task.FromResult(Delete(entity));
+        }
+    
+        /// <summary>
+        /// Get Queryable
+        /// </summary>
+        /// <returns></returns>
+        public Task<IQueryable<TEntity>> GetQueryableAsync()
+        {
+            IQueryable<TEntity> queryable = Context.Set<TEntity>();
+            return Task.FromResult(queryable);
         }
     }
 }

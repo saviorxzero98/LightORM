@@ -5,7 +5,7 @@
         /// <summary>
         /// 篩選的邏輯 (AND, OR)
         /// </summary>
-        public FilterLogic Logic { get; } = FilterLogic.And;
+        public FilterLogics Logic { get; set; } = FilterLogics.And;
 
 
         // <summary>
@@ -18,10 +18,11 @@
         {
 
         }
-        public MultiFilterOptions(List<IFilterOptions> filters, FilterLogic filterLogic = FilterLogic.And)
+        public MultiFilterOptions(IEnumerable<IFilterOptions> filters, 
+                                  FilterLogics logic = FilterLogics.And)
         {
-            Logic = filterLogic;
-            Filters = (filters != null) ? filters : new List<IFilterOptions>();
+            Logic = logic;
+            Filters = (filters != null) ? filters.ToList() : new List<IFilterOptions>();
         }
         public MultiFilterOptions(IMultiFilterOptions options)
         {
@@ -30,7 +31,7 @@
         }
         public MultiFilterOptions(IFilterOptions filter)
         {
-            Logic = FilterLogic.And;
+            Logic = FilterLogics.And;
             Filters = new List<IFilterOptions>();
 
             if (filter != null)

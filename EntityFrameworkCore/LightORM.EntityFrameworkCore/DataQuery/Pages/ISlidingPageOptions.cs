@@ -1,6 +1,6 @@
-﻿namespace LightORM.EntityFrameworkCore.DataQuery
+﻿namespace LightORM.EntityFrameworkCore.DataQuery.Pages
 {
-    public interface IDataSlidingPageOptions
+    public interface ISlidingPageOptions
     {
         /// <summary>
         /// 每一頁的筆數
