@@ -55,7 +55,7 @@ namespace LightORM.EntityFrameworkCore.Repositories
         {
             IQueryable<TEntity> queryable = Context.Set<TEntity>();
 
-            queryable = queryable.Filter(options.Filters)
+            queryable = queryable.Filter(options.Filters, options.IgnoreCase)
                                  .Sort(options)
                                  .Page(options);
 

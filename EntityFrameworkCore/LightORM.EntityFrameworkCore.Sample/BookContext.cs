@@ -43,6 +43,8 @@ namespace LightORM.EntityFrameworkCore.Sample
                         break;
                 }
             }
+
+            optionsBuilder.LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information);
         }
     }
 }

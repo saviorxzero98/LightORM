@@ -11,7 +11,17 @@ namespace LightORM.EntityFrameworkCore.DataQuery
         public IMultiSortOptions? Sorts { get; set; }
 
         public IMultiFilterOptions? Filters { get; set; }
+        public bool IgnoreCase { get; set; } = false;
 
+
+        public DataQueryOptions()
+        {
+
+        }
+        public DataQueryOptions(bool ignoreCase)
+        {
+            IgnoreCase = ignoreCase;
+        }
 
 
         #region 設定分頁

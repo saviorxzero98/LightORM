@@ -1,4 +1,7 @@
-﻿using LightORM.EntityFrameworkCore.Repositories;
+﻿using LightORM.EntityFrameworkCore.DataQuery;
+using LightORM.EntityFrameworkCore.DataQuery.Filters;
+using LightORM.EntityFrameworkCore.DataQuery.Sorts;
+using LightORM.EntityFrameworkCore.Repositories;
 using LightORM.EntityFrameworkCore.Sample.Entities;
 using LightORM.EntityFrameworkCore.UnitOfWorks;
 
@@ -56,6 +59,14 @@ namespace LightORM.EntityFrameworkCore.Sample
                 // Get
                 var insertedBook = repository.Get(e => e.Id == book.Id);
 
+                // Get List
+                var queryOptions = new DataQueryOptions(ignoreCase: true)
+                    .SetFilter(nameof(Book.Name), "Cha", FilterOperators.StartsWith)
+                    .SetSort(nameof(Book.Author), SortDirections.Desc)
+                    .SetPage(0, 2);
+                var insertedBookList = repository.GetList(queryOptions);
+
+
                 if (insertedBook != null)
                 {
                     // Update
@@ -63,7 +74,6 @@ namespace LightORM.EntityFrameworkCore.Sample
                     var updateResult = repository.UpdateAsync(insertedBook);
                     await unitOfWork.SaveChangeAsync();
                 }
-
 
                 // Get again
                 var updatedBook = repository.Get(e => e.Id == book.Id);
@@ -73,22 +83,19 @@ namespace LightORM.EntityFrameworkCore.Sample
                 if (updatedBook != null)
                 {
                     // Delete
-                    var deleteResult = repository.DeleteAsync(updatedBook);
-                    await unitOfWork.SaveChangeAsync();
+                    var deleteResult = repository.DeleteAsync(updatedBook);                    
                 }
                 if (updatedBook2 != null)
                 {
                     // Delete
                     var deleteResult = repository.DeleteAsync(updatedBook2);
-                    await unitOfWork.SaveChangeAsync();
                 }
                 if (updatedBook3 != null)
                 {
                     // Delete
                     var deleteResult = repository.DeleteAsync(updatedBook3);
-                    await unitOfWork.SaveChangeAsync();
-
                 }
+                await unitOfWork.SaveChangeAsync();
             }
         }
     }

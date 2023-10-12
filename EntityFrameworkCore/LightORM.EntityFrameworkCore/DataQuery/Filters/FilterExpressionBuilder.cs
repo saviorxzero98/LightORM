@@ -5,12 +5,17 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
 {
     internal class FilterExpressionBuilder
     {
-        private static readonly MethodInfo _containsMethod = typeof(string).GetMethod(nameof(FilterOperators.Contains),
-                                                                                      new[] { typeof(string) });
-        private static readonly MethodInfo _startsWithMethod = typeof(string).GetMethod(nameof(FilterOperators.StartsWith),
-                                                                                        new[] { typeof(string) });
-        private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod(nameof(FilterOperators.EndsWith),
-                                                                                      new[] { typeof(string) });
+        private const string ToLowerMethod = "ToLower";
+        private const string ContainsMethod = "Contains";
+        private const string StartsWithMethod = "StartsWith";
+        private const string EndsWithMethod = "EndsWith";
+
+
+        private static readonly MethodInfo _toLowerMethod = typeof(string).GetMethod(ToLowerMethod, new Type[] {});
+        private static readonly MethodInfo _containsMethod = typeof(string).GetMethod(ContainsMethod,new Type[] { typeof(string) });
+        private static readonly MethodInfo _startsWithMethod = typeof(string).GetMethod(StartsWithMethod, new Type[] { typeof(string) });
+        private static readonly MethodInfo _endsWithMethod = typeof(string).GetMethod(EndsWithMethod, new Type[] { typeof(string) });
+
         private static Expression<Func<T, bool>> DefaultExpression<T>() => _ => true;
 
 
@@ -20,14 +25,17 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <typeparam name="T"></typeparam>
         /// <param name="filterLogic"></param>
         /// <param name="filters"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
-        internal static Expression<Func<T, bool>>? GetFilterExpression<T>(FilterLogics filterLogic, IEnumerable<IFilterOptions> filters)
+        internal static Expression<Func<T, bool>>? GetFilterExpression<T>(FilterLogics filterLogic, 
+                                                                          IEnumerable<IFilterOptions> filters,
+                                                                          bool ignoreCase = false)
         {
             if (!(filters is object) || !filters.Any())
             {
                 return DefaultExpression<T>();
             }
-
+            
             var param = Expression.Parameter(typeof(T), FilterConst.ExpressionParameter);
             var filterList = filters
                 .ToList()
@@ -48,7 +56,8 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
                 .Select(filter => Expression.Lambda<Func<T, bool>>(GetFilterExpression<T>(filter.Operator,
                                                                                           param,
                                                                                           filter.Value,
-                                                                                          filter.Field),
+                                                                                          filter.Field,
+                                                                                          ignoreCase),
                         param));
 
             return CombineExpressions(filterList, filterLogic);
@@ -129,15 +138,17 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <param name="param"></param>
         /// <param name="filterValue"></param>
         /// <param name="fieldName"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
         private static Expression GetFilterExpression<T>(FilterOperators filterOperator,
                                                          ParameterExpression param,
                                                          string filterValue, 
-                                                         string fieldName)
+                                                         string fieldName,
+                                                         bool ignoreCase = false)
         {
             MemberExpression member = Expression.Property(param, fieldName);
-            ConstantExpression constant = GetConstantExpression(filterValue, member);
-            Expression expression = GetExpression(filterOperator, member, constant);
+            ConstantExpression constant = GetConstantExpression(filterValue, member, ignoreCase);
+            Expression expression = GetExpression(filterOperator, member, constant, ignoreCase);
             return expression;
         }
 
@@ -146,8 +157,11 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// </summary>
         /// <param name="filterValue"></param>
         /// <param name="member"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
-        private static ConstantExpression GetConstantExpression(string filterValue, MemberExpression member)
+        private static ConstantExpression GetConstantExpression(string filterValue, 
+                                                                MemberExpression member,
+                                                                bool ignoreCase = false)
         {
             if (member.Type == typeof(bool) || member.Type == typeof(bool?))
             {
@@ -203,7 +217,14 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
             }
             else
             {
-                return Expression.Constant(filterValue, member.Type);
+                if (ignoreCase)
+                {
+                    return Expression.Constant(filterValue.ToLower(), member.Type);
+                }
+                else
+                {
+                    return Expression.Constant(filterValue, member.Type);
+                }
             }
         }
 
@@ -213,10 +234,12 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
         /// <param name="filterOperator"></param>
         /// <param name="member"></param>
         /// <param name="constant"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
         private static Expression GetExpression(FilterOperators filterOperator,
                                                 MemberExpression member,
-                                                ConstantExpression constant)
+                                                ConstantExpression constant, 
+                                                bool ignoreCase = false)
         {
             switch (filterOperator)
             {
@@ -233,27 +256,62 @@ namespace LightORM.EntityFrameworkCore.DataQuery.Filters
                     return Expression.LessThan(member, constant);
 
                 case FilterOperators.Equals:
+                    if (ignoreCase && IsStringMemberType(member))
+                    {
+                        return Expression.Equal(Expression.Call(member, _toLowerMethod), constant);
+                    }
                     return Expression.Equal(member, constant);
 
                 case FilterOperators.NotEquals:
-                    return Expression.NotEqual(member, constant);
+                    if (ignoreCase && IsStringMemberType(member))
+                    {
+                        return Expression.NotEqual(Expression.Call(member, _toLowerMethod), constant);
+                    }
+                    return Expression.NotEqual(member, constant);                  
 
                 case FilterOperators.Contains:
+                    if (ignoreCase && IsStringMemberType(member))
+                    {
+                        return Expression.Call(Expression.Call(member, _toLowerMethod), _containsMethod, constant);
+                    }
                     return Expression.Call(member, _containsMethod, constant);
 
                 case FilterOperators.DoesNotContain:
+                    if (ignoreCase && IsStringMemberType(member))
+                    {
+                        return Expression.Not(Expression.Call(Expression.Call(member, _toLowerMethod), _containsMethod, constant));
+                    }
                     return Expression.Not(Expression.Call(member, _containsMethod, constant));
 
-                case FilterOperators.EndsWith:
-                    return Expression.Call(member, _endsWithMethod, constant);
-
                 case FilterOperators.StartsWith:
+                    if (ignoreCase && IsStringMemberType(member))
+                    {
+                        return Expression.Call(Expression.Call(member, _toLowerMethod), _startsWithMethod, constant);
+                    }
                     return Expression.Call(member, _startsWithMethod, constant);
+
+                case FilterOperators.EndsWith:
+                    if (ignoreCase && IsStringMemberType(member))
+                    {
+                        return Expression.Call(Expression.Call(member, _toLowerMethod), _endsWithMethod, constant);
+                    }
+                    return Expression.Call(member, _endsWithMethod, constant);
 
                 default:
                     return Expression.Constant(false);
             }
         }
+
+        /// <summary>
+        /// 是否為 Type 為字串
+        /// </summary>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        private static bool IsStringMemberType(MemberExpression member)
+        {
+            return (member.Type == typeof(string));
+        }
+
 
         /// <summary>
         /// Expression Visitor

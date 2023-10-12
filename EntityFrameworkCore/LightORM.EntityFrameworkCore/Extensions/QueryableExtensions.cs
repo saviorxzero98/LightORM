@@ -228,12 +228,15 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
         /// <param name="options"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
-        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, IDataQueryOptions? options)
+        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, 
+                                              IDataQueryOptions? options,
+                                              bool ignoreCase = false)
         {
             if (options != null && options.Filters != null)
             {
-                return queryable.Filter(options.Filters);
+                return queryable.Filter(options.Filters, ignoreCase);
             }
             return queryable;
         }
@@ -246,14 +249,18 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// <param name="field"></param>
         /// <param name="value"></param>
         /// <param name="type"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
-        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, string field,
-                                              string value, FilterOperators type = FilterOperators.StartsWith)
+        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, 
+                                              string field,
+                                              string value, 
+                                              FilterOperators type = FilterOperators.StartsWith,
+                                              bool ignoreCase = false)
         {
             if (!string.IsNullOrEmpty(field))
             {
                 var options = new FilterOptions(field, value, type);
-                return queryable.Filter(options);
+                return queryable.Filter(options, ignoreCase);
             }
             else
             {
@@ -266,12 +273,15 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
         /// <param name="options"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
-        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, IFilterOptions? options)
+        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable,
+                                              IFilterOptions? options,
+                                              bool ignoreCase = false)
         {
             if (options != null)
             {
-                return queryable.Filter(new MultiFilterOptions(options));
+                return queryable.Filter(new MultiFilterOptions(options), ignoreCase);
             }
             else
             {
@@ -281,20 +291,22 @@ namespace LightORM.EntityFrameworkCore.Extensions
 
 
         /// <summary>
-        /// 篩選欄位 (多個欄位)
+        ///  篩選欄位 (多個欄位)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
         /// <param name="filters"></param>
         /// <param name="logic"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
         public static IQueryable<T> Filter<T>(this IQueryable<T> queryable,
                                               IEnumerable<IFilterOptions> filters,
-                                              FilterLogics logic = FilterLogics.And)
+                                              FilterLogics logic = FilterLogics.And,
+                                              bool ignoreCase = false)
         {
             if (filters != null)
             {
-                return queryable.Filter(new MultiFilterOptions(filters, logic));
+                return queryable.Filter(new MultiFilterOptions(filters, logic), ignoreCase);
             }
             else
             {
@@ -307,12 +319,17 @@ namespace LightORM.EntityFrameworkCore.Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
         /// <param name="options"></param>
+        /// <param name="ignoreCase"></param>
         /// <returns></returns>
-        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, IMultiFilterOptions? options)
+        public static IQueryable<T> Filter<T>(this IQueryable<T> queryable, 
+                                              IMultiFilterOptions? options,
+                                              bool ignoreCase = false)
         {
             if (options != null)
             {
-                var expressions = FilterExpressionBuilder.GetFilterExpression<T>(options.Logic, options.Filters);
+                var expressions = FilterExpressionBuilder.GetFilterExpression<T>(options.Logic,
+                                                                                 options.Filters,
+                                                                                 ignoreCase);
 
                 if (expressions != null)
                 {
